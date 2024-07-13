@@ -1,4 +1,4 @@
-# NFTaaS (NFT as a Service) Marketplace
+# NFTaaS Marketplace
 
 A Marketplace where vendors can list their own services as an NFT.
 
