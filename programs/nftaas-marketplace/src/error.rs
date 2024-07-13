@@ -1,7 +1,7 @@
-use anchor_lang::prelude::*;
+use anchor_lang::error_code;
 
 #[error_code]
-pub enum ErrorCode {
-    #[msg("Custom error message")]
-    CustomError,
+pub enum MarketplaceError {
+    #[msg("The given name is too long")]
+    NameTooLong,
 }
