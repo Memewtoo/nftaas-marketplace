@@ -5,7 +5,7 @@ A Marketplace where vendors can list their own services as an NFT.
 In the process of doing so, they would be able to create and mint 
 an NFT and imprint their services as a "description" of the NFT's metadata.
 
-it can both support SPL-Token and Token2022 NFTs
+It can both support SPL-Token and Token2022 NFTs
 
 ## Program ID on Devnet
 `89FLpPbfBRCNojLgVaydAyHnf9Vbh4gP9Jabba67b956`
