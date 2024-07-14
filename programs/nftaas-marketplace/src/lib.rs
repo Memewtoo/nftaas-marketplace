@@ -49,7 +49,6 @@ pub mod nftaas_marketplace {
     pub fn unlist(ctx: Context<Unlist>) -> Result<()> {
         ctx.accounts.withdraw_nft()?;
 
-        // No need to do some functions for closing the listing account as it will do it automatically
         Ok(())
     }
 }

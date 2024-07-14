@@ -68,6 +68,7 @@ impl<'info> Purchase <'info> {
     pub fn send_fee_to_maker(&mut self) -> Result <()> {
         let cpi_program = self.system_program.to_account_info();
 
+        // Preparing the context to be used for Transfer CPI invocation
         let cpi_accounts = Transfer {
             from: self.taker.to_account_info(),
             to: self.maker.to_account_info(),
@@ -83,13 +84,17 @@ impl<'info> Purchase <'info> {
             price.checked_mul(fee as u64).unwrap().checked_div(10_000).unwrap()
         ).unwrap();
 
+        // Transfer SOL equal to the listing price (minus the marketplace fee)
+        // from the customer to othe maker
         transfer(cpi_ctx, calculated_amount)?;
         Ok (())
     }
 
     pub fn send_fee_to_treasury(&mut self) -> Result <()> {
+
         let cpi_program = self.system_program.to_account_info();
 
+        // Prepare the context to be used for Transfer CPI invocation
         let cpi_accounts = Transfer{
             from: self.taker.to_account_info(),
             to: self.treasury.to_account_info(),
@@ -104,6 +109,8 @@ impl<'info> Purchase <'info> {
         // Calculating the proper fee to be sent to the treasury
         let calculated_fee = price.checked_mul(fee.into()).unwrap().checked_div(10_000).unwrap();
 
+        // Transfer SOL equal to the marketplace fee (minus the marketplace fee)
+        // from the customer to othe marketplace treasury
         transfer(cpi_ctx, calculated_fee)?;
         
         Ok(())
@@ -112,6 +119,7 @@ impl<'info> Purchase <'info> {
     pub fn transfer_nft(&mut self) -> Result <()> {
         let cpi_program = self.token_program.to_account_info();
 
+        // Prepare the context to be used for TransferChecked CPI Invocation
         let cpi_accounts = TransferChecked {
             from: self.vault.to_account_info(),
             mint: self.maker_mint.to_account_info(),
@@ -129,15 +137,20 @@ impl<'info> Purchase <'info> {
 
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
+        // Transfer the NFT from the vault to the customer
         transfer_checked(cpi_ctx, 1, self.maker_mint.decimals)?;
 
         Ok(())
     }
 
     pub fn close_vault(&mut self) -> Result<()> {
+        // We cannot close the vault token account automatically
+        // by using "close" constraint, so we need to close it manually
+        // by using the CloseAccount CPI of Token Program
 
         let cpi_program = self.token_program.to_account_info();
 
+        // Prepare the context to be used for CloseAccount CPI invocation
         let cpi_accounts = CloseAccount{
             account: self.vault.to_account_info(),
             destination: self.maker.to_account_info(),
@@ -155,6 +168,7 @@ impl<'info> Purchase <'info> {
 
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
+        // Closes that vault token account and send back the rent to the maker
         close_account(cpi_ctx)?;
 
         Ok(())

@@ -72,6 +72,7 @@ impl<'info> Unlist<'info> {
     pub fn withdraw_nft(&mut self) -> Result<()> {
         let cpi_program = self.token_program.to_account_info();
 
+        // Prepare the context to be used for TransferChecked CPI invocation
         let cpi_accounts = TransferChecked {
             from: self.vault.to_account_info(),
             to: self.maker_ata.to_account_info(),
@@ -89,8 +90,11 @@ impl<'info> Unlist<'info> {
 
         let cpi_ctx = CpiContext::new_with_signer(cpi_program, cpi_accounts, signer_seeds);
 
+        // Transfer the NFT from the vault back to the maker
         transfer_checked(cpi_ctx, 1, self.maker_mint.decimals)?;
 
+        // Listing account automatically closes using the "close" constraint
+        // before this instruction is finalized.
         Ok(())
     }
 }

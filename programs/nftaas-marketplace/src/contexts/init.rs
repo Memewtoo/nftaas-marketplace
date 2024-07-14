@@ -6,6 +6,7 @@ use crate::{state::Marketplace, MarketplaceError};
 #[derive(Accounts)]
 #[instruction(name: String)]
 pub struct Initialize<'info> {
+
     #[account(mut)]
     pub admin: Signer<'info>,
 
@@ -30,6 +31,9 @@ pub struct Initialize<'info> {
 
 impl<'info> Initialize<'info> {
     pub fn init(&mut self, name: String, fee: u16, bumps: &InitializeBumps) -> Result<()> {
+
+        // Validate that the marketplace name length 
+        // is a valid length to be used as a seed for PDA
         require!(name.len() > 0 && name.len() < 33, MarketplaceError::NameTooLong);
         
         self.marketplace.set_inner(Marketplace {
